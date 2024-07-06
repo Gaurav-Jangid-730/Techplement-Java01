@@ -19,18 +19,20 @@ public final class ChaCha20_Encryption {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    // Function to generate a ChaCha20 key
     public static SecretKey generateKey() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("ChaCha20", "BC");
         keyGen.init(256, new SecureRandom());
         return keyGen.generateKey();
     }
 
-    // Function to encrypt a file using ChaCha20
-    public static void encryptFile(File inFile, File outFile, SecretKey key) throws Exception {
+    public static void encryptFile(File inFile, File outFile, SecretKey key, boolean verbose) throws Exception {
         byte[] nonce = new byte[12];
         SecureRandom random = new SecureRandom();
         random.nextBytes(nonce);
+
+        if (verbose) {
+            System.out.println("Generated Nonce: " + Base64.getEncoder().encodeToString(nonce));
+        }
 
         try (FileOutputStream outStream = new FileOutputStream(outFile)) {
             outStream.write(nonce);
@@ -38,6 +40,10 @@ public final class ChaCha20_Encryption {
             Cipher cipher = Cipher.getInstance("ChaCha20", "BC");
             ChaCha20ParameterSpec param = new ChaCha20ParameterSpec(nonce, 0);
             cipher.init(Cipher.ENCRYPT_MODE, key, param);
+
+            if (verbose) {
+                System.out.println("Encryption cipher initialized.");
+            }
 
             try (FileInputStream inStream = new FileInputStream(inFile)) {
                 byte[] buffer = new byte[1024];
@@ -47,17 +53,22 @@ public final class ChaCha20_Encryption {
                     if (output != null) {
                         outStream.write(output);
                     }
+                    if (verbose) {
+                        System.out.println("Read " + bytesRead + " bytes from input file.");
+                    }
                 }
                 byte[] outputBytes = cipher.doFinal();
                 if (outputBytes != null) {
                     outStream.write(outputBytes);
                 }
+                if (verbose) {
+                    System.out.println("Encryption completed.");
+                }
             }
         }
     }
 
-    // Function to decrypt a file using ChaCha20
-    public static void decryptFile(File inputFile, File outputFile, SecretKey key) throws Exception {
+    public static void decryptFile(File inputFile, File outputFile, SecretKey key, boolean verbose) throws Exception {
         try (FileInputStream inStream = new FileInputStream(inputFile)) {
             byte[] nonce = new byte[12];
             int bytesRead = 0;
@@ -69,9 +80,17 @@ public final class ChaCha20_Encryption {
                 bytesRead += read;
             }
 
+            if (verbose) {
+                System.out.println("Read Nonce: " + Base64.getEncoder().encodeToString(nonce));
+            }
+
             Cipher cipher = Cipher.getInstance("ChaCha20", "BC");
             ChaCha20ParameterSpec param = new ChaCha20ParameterSpec(nonce, 0);
             cipher.init(Cipher.DECRYPT_MODE, key, param);
+
+            if (verbose) {
+                System.out.println("Decryption cipher initialized.");
+            }
 
             try (FileOutputStream outStream = new FileOutputStream(outputFile)) {
                 byte[] buffer = new byte[1024];
@@ -81,21 +100,25 @@ public final class ChaCha20_Encryption {
                     if (output != null) {
                         outStream.write(output);
                     }
+                    if (verbose) {
+                        System.out.println("Read " + read + " bytes from input file.");
+                    }
                 }
                 byte[] outputBytes = cipher.doFinal();
                 if (outputBytes != null) {
                     outStream.write(outputBytes);
                 }
+                if (verbose) {
+                    System.out.println("Decryption completed.");
+                }
             }
         }
     }
 
-    // Function to convert a SecretKey to a Base64 encoded string
     public static String keyToString(SecretKey key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 
-    // Function to convert a Base64 encoded string to a SecretKey
     public static SecretKey stringToKey(String keyString) {
         byte[] decodedKey = Base64.getDecoder().decode(keyString);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "ChaCha20");
