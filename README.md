@@ -21,7 +21,7 @@ cd Techplement-Java01
 To use File_encrypt_decrypt, execute the following command:
 
 ```bash
-java -jar File_encrypt_decrypt.jar [options]
+java -jar File_encrypter_decrypter.jar [options]
 ```
 
 ## Options
