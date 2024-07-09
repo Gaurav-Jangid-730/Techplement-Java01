@@ -47,12 +47,12 @@ Ensure to specify the correct key size when using the `-ks` or `--keysize` optio
 * Encrypt a file using AES:
 
 ```bash
-java -jar File_encrypt_decrypt.jar -a AES -m encrypt -i input.txt -o encrypted.enc -ks 128
+java -jar File_encrypter_decrypter.jar -a AES -m encrypt -i input.txt -o encrypted.enc -ks 128
 ```
 * Decrypt a file using RSA:
 
 ```bash
-java -jar File_encrypt_decrypt.jar -a RSA -m decrypt -i encrypted.enc -o decrypted.txt -k encrypted.enc.key
+java -jar File_encrypter_decrypter.jar -a RSA -m decrypt -i encrypted.enc -o decrypted.txt -k encrypted.enc.key
 ```
 ## Team Members
 
